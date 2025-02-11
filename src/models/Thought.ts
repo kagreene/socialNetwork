@@ -2,20 +2,19 @@ import { Schema, model, Types, type Document } from 'mongoose';
 
 // Define the dateFormat function
 const dateFormat = (timestamp: Date): string => {
-    // Implement your date formatting logic here
-    return timestamp.toISOString(); // Example formatting
+    return timestamp.toISOString();
 };
 
 interface IReaction extends Document{
     reactionId: Schema.Types.ObjectId;
     reactionBody: string;
     username: string;
-    createdAt: Date;
+    createdAt: Schema.Types.Date;
 };
 
 interface IThought extends Document{
     thoughtText: string;
-    createdAt: Date;
+    createdAt: Schema.Types.Date;
     username: string;
     reactions: Schema.Types.ObjectId[]; //should reference reactions model
 };
@@ -35,10 +34,16 @@ const reactionSchema = new Schema<IReaction>({
         required: true,
     },
     createdAt: {
-        type: Date,
+        type: Schema.Types.Date,
         default: Date.now,
-       // get: (timestamp: Date) => dateFormat(timestamp),
+        get: (timestamp: Date) => dateFormat(timestamp),
     },
+}, 
+{
+    toJSON: {
+        virtuals: true,
+        getters: true,
+    }
 });
 
 const thoughtSchema = new Schema<IThought>({
@@ -51,7 +56,7 @@ const thoughtSchema = new Schema<IThought>({
     createdAt: {
         type: Date,
         default: Date.now,
-       // get: (timestamp: Date) => dateFormat(timestamp),
+        get: (timestamp: Date) => dateFormat(timestamp),
     },
     username: {
         type: String,
@@ -63,15 +68,19 @@ const thoughtSchema = new Schema<IThought>({
     toJSON: {
         virtuals: true,
         getters: true,
-    },
+    }
 });
 
 //Virtual that retrieves the length of the thought's reactions array field on query
 thoughtSchema.virtual('reactionCount').get(function(){
     return this.reactions.length;
 });
+//use getter method to format timestamp on query
+thoughtSchema.virtual('formattedCreatedAt').get(function(){
+    return dateFormat(this.createdAt as unknown as Date);
+})
 //Initialize thought model
 const Thought = model('Thought', thoughtSchema);    
-//use getter method to format timestamp on query
+
 
 export default Thought;
