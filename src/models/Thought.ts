@@ -1,8 +1,10 @@
 import { Schema, model, Types, type Document } from 'mongoose';
 
+
 // Define the dateFormat function
 const dateFormat = (timestamp: Date): string => {
-    return timestamp.toISOString();
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    return date.toISOString();
 };
 
 interface IReaction extends Document{
@@ -35,7 +37,7 @@ const reactionSchema = new Schema<IReaction>({
     },
     createdAt: {
         type: Schema.Types.Date,
-        default: Date.now,
+        default: new Date(),
         get: (timestamp: Date) => dateFormat(timestamp),
     },
 }, 
@@ -55,7 +57,7 @@ const thoughtSchema = new Schema<IThought>({
     },
     createdAt: {
         type: Date,
-        default: Date.now,
+        default: new Date(),
         get: (timestamp: Date) => dateFormat(timestamp),
     },
     username: {
@@ -80,7 +82,7 @@ thoughtSchema.virtual('formattedCreatedAt').get(function(){
     return dateFormat(this.createdAt as unknown as Date);
 })
 //Initialize thought model
-const Thought = model('Thought', thoughtSchema);    
+const Thought = model<IThought>('Thought', thoughtSchema);    
 
 
 export default Thought;

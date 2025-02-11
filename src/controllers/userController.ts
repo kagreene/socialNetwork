@@ -15,8 +15,9 @@ export const getAllUsers = async(_req: Request, res: Response) => {
 // GET a single user by its _id and populated thought and friend data
 export const getUserById = async(req: Request, res: Response) => {
     const { userId } = req.params;
+    console.log(userId);
     try{
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).populate('thoughts').populate('friends');
         if(user){
             res.json(user);
         } else {
