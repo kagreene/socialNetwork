@@ -52,7 +52,7 @@ export const updateThought = async(req: Request, res: Response) => {
 export const deleteThought = async(req: Request, res: Response) => {
     const {thoughtId} = req.params;
     try {
-        const thought = await Thought.findOneAndDelete({_id:thoughtId}).populate('userId');
+        const thought = await Thought.findOneAndDelete({_id:thoughtId});
         if(thought){
             await User.findOneAndUpdate({_id: req.params.userId}, {$pull: {thoughts: thought._id}}, {new: true});
             res.json({message: 'Thought deleted'});
